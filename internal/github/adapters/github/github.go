@@ -3,7 +3,7 @@ package github
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/Scalingo/sclng-backend-test-v1/internal/github/app/query"
+	"github.com/Scalingo/sclng-backend-test-v1/internal/github/service"
 	"github.com/Scalingo/sclng-backend-test-v1/internal/shared"
 	"net/http"
 	"sync"
@@ -19,7 +19,7 @@ func New(config *shared.Config) *Repository {
 	}
 }
 
-func (r *Repository) ReadPublicRepositories() ([]query.Repository, error) {
+func (r *Repository) ReadPublicRepositories() ([]service.RepositoryDTO, error) {
 	response, err := http.Get(r.config.GithubApiURI + "/repositories")
 	if err != nil {
 		return nil, err
@@ -32,7 +32,7 @@ func (r *Repository) ReadPublicRepositories() ([]query.Repository, error) {
 	}
 
 	var wg sync.WaitGroup
-	resultChan := make(chan query.Repository, len(repositories))
+	resultChan := make(chan service.RepositoryDTO, len(repositories))
 
 	for i := 0; i < r.config.Workers; i++ {
 		repos := repositories[len(repositories)/r.config.Workers*i : len(repositories)/r.config.Workers*(i+1)]
@@ -49,7 +49,7 @@ func (r *Repository) ReadPublicRepositories() ([]query.Repository, error) {
 	wg.Wait()
 	close(resultChan)
 
-	repos := make([]query.Repository, 0)
+	repos := make([]service.RepositoryDTO, 0)
 	for result := range resultChan {
 		repos = append(repos, result)
 	}
@@ -57,7 +57,7 @@ func (r *Repository) ReadPublicRepositories() ([]query.Repository, error) {
 	return repos, nil
 }
 
-func worker(i []GithubRepositoryModel, resultChan chan<- query.Repository) error {
+func worker(i []GithubRepositoryModel, resultChan chan<- service.RepositoryDTO) error {
 	for _, repo := range i {
 		response, err := http.Get(repo.LanguageURL)
 		if err != nil {

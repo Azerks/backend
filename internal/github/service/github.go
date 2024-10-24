@@ -1,4 +1,4 @@
-package query
+package service
 
 type GetPublicGithubRepositories struct {
 }
@@ -12,7 +12,7 @@ func NewGithubRepositoriesHandler(githubRepository RepositoriesReader) GetPublic
 	}
 }
 
-func (h *GetPublicGithubRepositoriesHandler) Handle() ([]Repository, error) {
+func (h *GetPublicGithubRepositoriesHandler) Handle() ([]RepositoryDTO, error) {
 	repositories, err := h.githubRepository.ReadPublicRepositories()
 	if err != nil {
 		return nil, err

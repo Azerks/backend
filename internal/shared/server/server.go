@@ -48,6 +48,7 @@ func (s *Server) RespondErr(w http.ResponseWriter, r *http.Request, err error) {
 		return
 	}
 
+	s.Respond(w, r, http.StatusInternalServerError, nil)
 }
 
 func (s *Server) Decode(_ http.ResponseWriter, r *http.Request, v interface{}) error {

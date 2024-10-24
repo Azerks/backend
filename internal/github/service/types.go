@@ -1,6 +1,6 @@
-package query
+package service
 
-type Repository struct {
+type RepositoryDTO struct {
 	FullName       string         `json:"full_name"`
 	Owner          string         `json:"owner"`
 	RepositoryName string         `json:"repository_name"`
