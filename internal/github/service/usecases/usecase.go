@@ -1,4 +1,4 @@
-package usecase
+package usecases
 
 type RepositoryDTO struct {
 	FullName   string         `json:"full_name"`
@@ -11,3 +11,9 @@ type RepositoriesFilters struct {
 	Limit    int
 	Language string
 }
+
+type (
+	RepositoriesReader interface {
+		ReadPublicRepositories(filters RepositoriesFilters) ([]RepositoryDTO, error)
+	}
+)

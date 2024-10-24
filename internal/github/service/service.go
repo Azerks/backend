@@ -1,22 +1,22 @@
 package service
 
 import (
-	"github.com/Scalingo/sclng-backend-test-v1/internal/github/adapters/github"
-	"github.com/Scalingo/sclng-backend-test-v1/internal/github/service/usecase"
+	"github.com/Scalingo/sclng-backend-test-v1/internal/github/adapters/repositories"
+	"github.com/Scalingo/sclng-backend-test-v1/internal/github/service/usecases"
 	"github.com/Scalingo/sclng-backend-test-v1/internal/shared"
 	"net/http"
 )
 
-type App struct {
-	GetGithubRepositories usecase.GetPublicGithubRepositoriesHandler
+type Service struct {
+	GetGithubRepositories usecases.GetPublicGithubRepositoriesHandler
 }
 
-func New(config *shared.Config) *App {
+func New(config *shared.Config) *Service {
 
 	client := http.Client{}
-	repository := github.New(config, &client)
+	repository := repositories.New(config, &client)
 
-	return &App{
-		GetGithubRepositories: usecase.NewGithubRepositoriesHandler(repository),
+	return &Service{
+		GetGithubRepositories: usecases.NewGithubRepositoriesHandler(repository),
 	}
 }

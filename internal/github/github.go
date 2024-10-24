@@ -6,7 +6,7 @@ import (
 	"github.com/Scalingo/sclng-backend-test-v1/internal/shared/server"
 )
 
-func New(s *server.Server) *service.App {
+func New(s *server.Server) *service.Service {
 	application := service.New(s.Config)
 	http.NewServer(s, application).Register()
 	return application

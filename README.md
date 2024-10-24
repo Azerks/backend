@@ -9,7 +9,7 @@ The Application is divided into three layers:
 
 - Interface Layer: The entry point of the application, where the request is received and the response is sent. This
   layer is calling the application layer
-- Application Layer: This layer is responsible for holding the use cases which are going to call the domain (which is
+- Service Layer: This layer is responsible for holding the use cases which are going to call the domain (which is
   empty in this case) and the adapter layer.
 - Adapter Layer: Adapters are connectors to external services or databases. In this case, in this case the adapter is
   responsible for calling the GitHub API and aggregating the languages of the repositories. It could be a bit confusing
@@ -19,13 +19,13 @@ The Application is divided into three layers:
 
 - A cache would be highly beneficial to store either a previous request or a repository that has already been
   aggregated.
-  We could, for example, set up a redis cache.
+  We could, for example, set up an memory cache or a redis cache.
 
 ### Scalability & Maintainability
 
 - Since the application is stateless, it can be easily scaled horizontally.
 - The multiple layers of the application make it easy to maintain, test it and add new features.
-- Adapters are easily replaceable or mockeable.
+- Adapters are easily replaceable or mockable.
 - There is mappings between the final response and the layers, so data can be easily transformed, added, removed without
   introducing breaking changes.
 

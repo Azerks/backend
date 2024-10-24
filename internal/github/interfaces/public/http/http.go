@@ -7,10 +7,10 @@ import (
 
 type Server struct {
 	server *server.Server
-	app    *service.App
+	app    *service.Service
 }
 
-func NewServer(mux *server.Server, app *service.App) *Server {
+func NewServer(mux *server.Server, app *service.Service) *Server {
 	return &Server{
 		server: mux,
 		app:    app,

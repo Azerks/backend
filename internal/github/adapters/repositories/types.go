@@ -1,7 +1,7 @@
-package github
+package repositories
 
 import (
-	"github.com/Scalingo/sclng-backend-test-v1/internal/github/service/usecase"
+	"github.com/Scalingo/sclng-backend-test-v1/internal/github/service/usecases"
 )
 
 type GithubRepositoryModel struct {
@@ -13,8 +13,8 @@ type GithubRepositoryModel struct {
 	LanguageURL string `json:"languages_url"`
 }
 
-func toGithubRepositoriesQuery(m GithubRepositoryModel, languages map[string]int) usecase.RepositoryDTO {
-	return usecase.RepositoryDTO{
+func toGithubRepositoriesQuery(m GithubRepositoryModel, languages map[string]int) usecases.RepositoryDTO {
+	return usecases.RepositoryDTO{
 		FullName:   m.FullName,
 		Owner:      m.Owner.Login,
 		Repository: m.FullName,
