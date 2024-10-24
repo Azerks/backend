@@ -1,4 +1,4 @@
-package service
+package app
 
 import (
 	"github.com/Scalingo/sclng-backend-test-v1/internal/github/adapters/github"

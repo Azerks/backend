@@ -7,7 +7,7 @@ import (
 
 func (s *Server) getRepositories() handlers.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request, vars map[string]string) error {
-		repositories, err := s.app.Queries.GetGithubRepositories.Handle()
+		repositories, err := s.app.GetGithubRepositories.Handle()
 		if err != nil {
 			s.server.Log.WithError(err)
 			s.server.RespondErr(w, r, err)

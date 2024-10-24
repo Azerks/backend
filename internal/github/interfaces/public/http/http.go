@@ -1,16 +1,16 @@
 package http
 
 import (
-	"github.com/Scalingo/sclng-backend-test-v1/internal/github/service"
+	"github.com/Scalingo/sclng-backend-test-v1/internal/github/app"
 	"github.com/Scalingo/sclng-backend-test-v1/internal/shared/server"
 )
 
 type Server struct {
 	server *server.Server
-	app    *service.App
+	app    *app.App
 }
 
-func NewServer(mux *server.Server, app *service.App) *Server {
+func NewServer(mux *server.Server, app *app.App) *Server {
 	return &Server{
 		server: mux,
 		app:    app,
