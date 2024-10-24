@@ -3,7 +3,7 @@ package github
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/Scalingo/sclng-backend-test-v1/internal/github/app/query"
+	"github.com/Scalingo/sclng-backend-test-v1/internal/github/service/usecase"
 	"github.com/Scalingo/sclng-backend-test-v1/internal/shared"
 	"net/http"
 	"sync"
@@ -19,7 +19,7 @@ func New(config *shared.Config) *Repository {
 	}
 }
 
-func (r *Repository) ReadPublicRepositories(filters query.RepositoriesFilters) ([]query.RepositoryDTO, error) {
+func (r *Repository) ReadPublicRepositories(filters usecase.RepositoriesFilters) ([]usecase.RepositoryDTO, error) {
 	req, err := http.NewRequest("GET", r.config.GithubApiURI+"/repositories", nil)
 	if err != nil {
 		return nil, err
@@ -43,7 +43,7 @@ func (r *Repository) ReadPublicRepositories(filters query.RepositoriesFilters) (
 	}
 
 	var wg sync.WaitGroup
-	resultChan := make(chan query.RepositoryDTO, len(repositories))
+	resultChan := make(chan usecase.RepositoryDTO, len(repositories))
 
 	for i := 0; i < r.config.WorkersPoolSize; i++ {
 		repos := repositories[len(repositories)/r.config.WorkersPoolSize*i : len(repositories)/r.config.WorkersPoolSize*(i+1)]
@@ -60,7 +60,7 @@ func (r *Repository) ReadPublicRepositories(filters query.RepositoriesFilters) (
 	wg.Wait()
 	close(resultChan)
 
-	repos := make([]query.RepositoryDTO, 0)
+	repos := make([]usecase.RepositoryDTO, 0)
 	for result := range resultChan {
 		repos = append(repos, result)
 	}
@@ -68,7 +68,7 @@ func (r *Repository) ReadPublicRepositories(filters query.RepositoriesFilters) (
 	return repos, nil
 }
 
-func worker(config *shared.Config, i []GithubRepositoryModel, resultChan chan<- query.RepositoryDTO, filters query.RepositoriesFilters) error {
+func worker(config *shared.Config, i []GithubRepositoryModel, resultChan chan<- usecase.RepositoryDTO, filters usecase.RepositoriesFilters) error {
 	for _, repo := range i {
 		req, err := http.NewRequest("GET", repo.LanguageURL, nil)
 		if err != nil {
@@ -98,7 +98,7 @@ func worker(config *shared.Config, i []GithubRepositoryModel, resultChan chan<- 
 	return nil
 }
 
-func shouldBeInclude(repo query.RepositoryDTO, filters query.RepositoriesFilters) bool {
+func shouldBeInclude(repo usecase.RepositoryDTO, filters usecase.RepositoriesFilters) bool {
 	if filters.Language != "" && repo.Language[filters.Language] == 0 {
 		return false
 	}

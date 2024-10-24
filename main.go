@@ -27,7 +27,7 @@ func run(log logrus.FieldLogger) error {
 	}
 
 	mux := server.New(cfg, log)
-	_ = github.NewGithubService(mux)
+	_ = github.New(mux)
 
 	return mux.Serve()
 }

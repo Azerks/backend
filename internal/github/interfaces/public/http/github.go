@@ -2,8 +2,7 @@ package http
 
 import (
 	"github.com/Scalingo/go-handlers"
-	"github.com/Scalingo/sclng-backend-test-v1/internal/github/app"
-	"github.com/Scalingo/sclng-backend-test-v1/internal/github/app/query"
+	"github.com/Scalingo/sclng-backend-test-v1/internal/github/service/usecase"
 	"net/http"
 	"strconv"
 )
@@ -14,11 +13,11 @@ func (s *Server) getRepositories() handlers.HandlerFunc {
 		if err != nil {
 			limit = 0
 		}
-		filters := query.RepositoriesFilters{
+		filters := usecase.RepositoriesFilters{
 			Limit:    limit,
 			Language: s.server.GetQueryParam(r, "language"),
 		}
-		repositories, err := s.app.GetGithubRepositories.Handle(app.GetPublicGithubRepositories{
+		repositories, err := s.app.GetGithubRepositories.Handle(usecase.GetPublicGithubRepositories{
 			Filters: filters,
 		})
 		if err != nil {

@@ -1,4 +1,4 @@
-package query
+package usecase
 
 type RepositoryDTO struct {
 	FullName   string         `json:"full_name"`

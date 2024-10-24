@@ -1,4 +1,4 @@
-package query
+package usecase
 
 type (
 	RepositoriesReader interface {
