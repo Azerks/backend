@@ -6,7 +6,9 @@ import (
 )
 
 type Config struct {
-	Port int `envconfig:"PORT" default:"5000"`
+	Port         int    `envconfig:"PORT" default:"5000"`
+	GithubApiURI string `envconfig:"GITHUB_API_URI" default:"https://api.github.com"`
+	Workers      int    `envconfig:"WORKERS" default:"5"`
 }
 
 func NewConfig() (*Config, error) {

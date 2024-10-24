@@ -7,7 +7,7 @@ import (
 )
 
 func NewGithubService(s *server.Server) *app.App {
-	application := app.New()
+	application := app.New(s.Config)
 	http.NewServer(s, application).Register()
 	return application
 }

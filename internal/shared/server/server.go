@@ -12,7 +12,7 @@ import (
 
 type Server struct {
 	Router *handlers.Router
-	config *shared.Config
+	Config *shared.Config
 	Log    logrus.FieldLogger
 }
 
@@ -20,13 +20,13 @@ func New(config *shared.Config, log logrus.FieldLogger) *Server {
 	router := handlers.NewRouter(log)
 	return &Server{
 		Router: router,
-		config: config,
+		Config: config,
 		Log:    log,
 	}
 }
 
 func (s *Server) Serve() error {
-	return http.ListenAndServe(fmt.Sprintf(":%d", s.config.Port), s.Router)
+	return http.ListenAndServe(fmt.Sprintf(":%d", s.Config.Port), s.Router)
 }
 
 func (s *Server) Respond(w http.ResponseWriter, _ *http.Request, status int, data any) {
@@ -47,6 +47,7 @@ func (s *Server) RespondErr(w http.ResponseWriter, r *http.Request, err error) {
 	if err == nil {
 		return
 	}
+
 }
 
 func (s *Server) Decode(_ http.ResponseWriter, r *http.Request, v interface{}) error {
