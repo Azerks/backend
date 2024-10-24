@@ -51,6 +51,10 @@ func (s *Server) RespondErr(w http.ResponseWriter, r *http.Request, err error) {
 	s.Respond(w, r, http.StatusInternalServerError, nil)
 }
 
+func (s *Server) GetQueryParam(r *http.Request, key string) string {
+	return r.URL.Query().Get(key)
+}
+
 func (s *Server) Decode(_ http.ResponseWriter, r *http.Request, v interface{}) error {
 	if r.ContentLength == 0 {
 		return nil

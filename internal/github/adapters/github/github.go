@@ -19,7 +19,7 @@ func New(config *shared.Config) *Repository {
 	}
 }
 
-func (r *Repository) ReadPublicRepositories() ([]query.RepositoryDTO, error) {
+func (r *Repository) ReadPublicRepositories(filters query.RepositoriesFilters) ([]query.RepositoryDTO, error) {
 	response, err := http.Get(r.config.GithubApiURI + "/repositories")
 	if err != nil {
 		return nil, err
@@ -31,6 +31,10 @@ func (r *Repository) ReadPublicRepositories() ([]query.RepositoryDTO, error) {
 		return nil, err
 	}
 
+	if filters.Limit != 0 {
+		repositories = repositories[:filters.Limit]
+	}
+
 	var wg sync.WaitGroup
 	resultChan := make(chan query.RepositoryDTO, len(repositories))
 
@@ -39,7 +43,7 @@ func (r *Repository) ReadPublicRepositories() ([]query.RepositoryDTO, error) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			err := worker(repos, resultChan)
+			err := worker(repos, resultChan, filters)
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -57,24 +61,36 @@ func (r *Repository) ReadPublicRepositories() ([]query.RepositoryDTO, error) {
 	return repos, nil
 }
 
-func worker(i []GithubRepositoryModel, resultChan chan<- query.RepositoryDTO) error {
+func worker(i []GithubRepositoryModel, resultChan chan<- query.RepositoryDTO, filters query.RepositoriesFilters) error {
 	for _, repo := range i {
 		response, err := http.Get(repo.LanguageURL)
 		if err != nil {
 			return err
 		}
+		defer response.Body.Close()
 
 		languages := map[string]int{}
 		if err := json.NewDecoder(response.Body).Decode(&languages); err != nil {
 			return err
 		}
 
-		resultChan <- toGithubRepositoriesQuery(repo, languages)
-
-		err = response.Body.Close()
-		if err != nil {
-			return err
+		repo := toGithubRepositoriesQuery(repo, languages)
+		if !shouldBeInclude(repo, filters) {
+			continue
 		}
+
+		resultChan <- repo
 	}
 	return nil
+}
+
+func shouldBeInclude(repo query.RepositoryDTO, filters query.RepositoriesFilters) bool {
+	if filters.Language != "" && repo.Language[filters.Language] == 0 {
+		return false
+	}
+
+	if filters.License != "" && repo.License != filters.License {
+		return false
+	}
+	return true
 }

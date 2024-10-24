@@ -5,6 +5,7 @@ import (
 )
 
 type GetPublicGithubRepositories struct {
+	Filters query.RepositoriesFilters
 }
 type GetPublicGithubRepositoriesHandler struct {
 	githubRepository query.RepositoriesReader
@@ -16,8 +17,8 @@ func NewGithubRepositoriesHandler(githubRepository query.RepositoriesReader) Get
 	}
 }
 
-func (h *GetPublicGithubRepositoriesHandler) Handle() ([]query.RepositoryDTO, error) {
-	repositories, err := h.githubRepository.ReadPublicRepositories()
+func (h *GetPublicGithubRepositoriesHandler) Handle(params GetPublicGithubRepositories) ([]query.RepositoryDTO, error) {
+	repositories, err := h.githubRepository.ReadPublicRepositories(params.Filters)
 	if err != nil {
 		return nil, err
 	}

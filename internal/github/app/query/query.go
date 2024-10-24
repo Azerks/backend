@@ -2,6 +2,6 @@ package query
 
 type (
 	RepositoriesReader interface {
-		ReadPublicRepositories() ([]RepositoryDTO, error)
+		ReadPublicRepositories(filters RepositoriesFilters) ([]RepositoryDTO, error)
 	}
 )
