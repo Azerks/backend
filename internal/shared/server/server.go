@@ -4,21 +4,24 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/Scalingo/go-handlers"
+	"github.com/Scalingo/go-utils/errors/v2"
 	"github.com/Scalingo/sclng-backend-test-v1/internal/shared"
 	"github.com/sirupsen/logrus"
-	"log/slog"
 	"net/http"
 )
 
 type Server struct {
 	Router *handlers.Router
 	config *shared.Config
+	Log    logrus.FieldLogger
 }
 
 func New(config *shared.Config, log logrus.FieldLogger) *Server {
 	router := handlers.NewRouter(log)
 	return &Server{
 		Router: router,
+		config: config,
+		Log:    log,
 	}
 }
 
@@ -36,10 +39,7 @@ func (s *Server) Respond(w http.ResponseWriter, _ *http.Request, status int, dat
 
 	err := json.NewEncoder(w).Encode(data)
 	if err != nil {
-		slog.Error(
-			"error encoding response", err.Error(),
-			slog.String("status", fmt.Sprintf("%d", status)),
-		)
+		s.Log.WithError(err)
 	}
 }
 
@@ -47,5 +47,16 @@ func (s *Server) RespondErr(w http.ResponseWriter, r *http.Request, err error) {
 	if err == nil {
 		return
 	}
+}
 
+func (s *Server) Decode(_ http.ResponseWriter, r *http.Request, v interface{}) error {
+	if r.ContentLength == 0 {
+		return nil
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(v); err != nil {
+		return errors.New(r.Context(), "Invalid input cannot decode to json")
+	}
+
+	return nil
 }
