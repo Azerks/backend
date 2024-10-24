@@ -3,9 +3,9 @@
 ## Specifications
 
 The architecture is a simplified version of a Clean Architecture under a single microservice.
-I usually like to do it with a domain layer and cqrs, but there is no need for it.
+I usually like to do it with a domain layer and cqrs, but there is no need for it here.
 
-The Application is divided into 3 layers:
+The Application is divided into three layers:
 
 - Interface Layer: The entry point of the application, where the request is received and the response is sent. This
   layer is calling the application layer
@@ -31,11 +31,12 @@ The Application is divided into 3 layers:
 
 ### Rate Limit
 
-Github API has a rate limit of 60 requests per hour for unauthenticated requests.
-And since aggregating the language from the repositories need a additional request per repository,
-you can set a "limit" of 59 repositories at most.
-However you could set a token in the .config file to increase the rate
-limit.
+GitHub API has a rate limit of 60 requests per hour for unauthenticated requests.
+And since aggregating the language from the repositories, need a additional request per repository,
+the rate limit can be reached quite quickly.
+
+However, you can set a token in the config.go file to increase the rate
+limit to 5000 requests per hours.
 
 ## Execution
 
@@ -58,7 +59,8 @@ test).
 
 Processing the repositories with their languages for 100 repos took under 0.10ms
 but could be highly inaccurate due to the GitHub API response time and various another reason.
-There is also a env variable 'WORKERS_POOL_SIZE'
+
+There is a env variable 'WORKERS_POOL_SIZE'
 that can be adjusted to increase the parallelism of the aggregations.
 
 Its also pretty much impossible to do a stress test due to the previously mentioned reasons.

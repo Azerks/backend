@@ -4,6 +4,7 @@ import (
 	"github.com/Scalingo/sclng-backend-test-v1/internal/github/adapters/github"
 	"github.com/Scalingo/sclng-backend-test-v1/internal/github/service/usecase"
 	"github.com/Scalingo/sclng-backend-test-v1/internal/shared"
+	"net/http"
 )
 
 type App struct {
@@ -12,7 +13,8 @@ type App struct {
 
 func New(config *shared.Config) *App {
 
-	repository := github.New(config)
+	client := http.Client{}
+	repository := github.New(config, &client)
 
 	return &App{
 		GetGithubRepositories: usecase.NewGithubRepositoriesHandler(repository),

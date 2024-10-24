@@ -10,12 +10,14 @@ import (
 )
 
 type Repository struct {
+	client *http.Client
 	config *shared.Config
 }
 
-func New(config *shared.Config) *Repository {
+func New(config *shared.Config, client *http.Client) *Repository {
 	return &Repository{
 		config: config,
+		client: client,
 	}
 }
 
@@ -27,7 +29,7 @@ func (r *Repository) ReadPublicRepositories(filters usecase.RepositoriesFilters)
 	req.Header.Set("Accept", "application/vnd.github+json")
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", r.config.GithubToken))
 
-	response, err := http.DefaultClient.Do(req)
+	response, err := r.client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +52,7 @@ func (r *Repository) ReadPublicRepositories(filters usecase.RepositoriesFilters)
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			err := worker(r.config, repos, resultChan, filters)
+			err := worker(r, repos, resultChan, filters)
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -68,16 +70,16 @@ func (r *Repository) ReadPublicRepositories(filters usecase.RepositoriesFilters)
 	return repos, nil
 }
 
-func worker(config *shared.Config, i []GithubRepositoryModel, resultChan chan<- usecase.RepositoryDTO, filters usecase.RepositoriesFilters) error {
+func worker(r *Repository, i []GithubRepositoryModel, resultChan chan<- usecase.RepositoryDTO, filters usecase.RepositoriesFilters) error {
 	for _, repo := range i {
 		req, err := http.NewRequest("GET", repo.LanguageURL, nil)
 		if err != nil {
 			return err
 		}
 		req.Header.Set("Accept", "application/vnd.github+json")
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", config.GithubToken))
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", r.config.GithubToken))
 
-		response, err := http.DefaultClient.Do(req)
+		response, err := r.client.Do(req)
 		if err != nil {
 			return err
 		}
