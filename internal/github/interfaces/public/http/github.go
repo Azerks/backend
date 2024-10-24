@@ -17,7 +17,6 @@ func (s *Server) getRepositories() handlers.HandlerFunc {
 		filters := query.RepositoriesFilters{
 			Limit:    limit,
 			Language: s.server.GetQueryParam(r, "language"),
-			License:  s.server.GetQueryParam(r, "license"),
 		}
 		repositories, err := s.app.GetGithubRepositories.Handle(app.GetPublicGithubRepositories{
 			Filters: filters,

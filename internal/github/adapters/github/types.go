@@ -15,9 +15,9 @@ type GithubRepositoryModel struct {
 
 func toGithubRepositoriesQuery(m GithubRepositoryModel, languages map[string]int) query.RepositoryDTO {
 	return query.RepositoryDTO{
-		FullName:       m.FullName,
-		Owner:          m.Owner.Login,
-		RepositoryName: m.FullName,
-		Language:       languages,
+		FullName:   m.FullName,
+		Owner:      m.Owner.Login,
+		Repository: m.FullName,
+		Language:   languages,
 	}
 }

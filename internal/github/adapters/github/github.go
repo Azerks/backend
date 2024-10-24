@@ -103,8 +103,5 @@ func shouldBeInclude(repo query.RepositoryDTO, filters query.RepositoriesFilters
 		return false
 	}
 
-	if filters.License != "" && repo.License != filters.License {
-		return false
-	}
 	return true
 }
