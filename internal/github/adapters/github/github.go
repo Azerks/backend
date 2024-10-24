@@ -20,7 +20,14 @@ func New(config *shared.Config) *Repository {
 }
 
 func (r *Repository) ReadPublicRepositories(filters query.RepositoriesFilters) ([]query.RepositoryDTO, error) {
-	response, err := http.Get(r.config.GithubApiURI + "/repositories")
+	req, err := http.NewRequest("GET", r.config.GithubApiURI+"/repositories", nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Accept", "application/vnd.github+json")
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", r.config.GithubToken))
+
+	response, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -38,12 +45,12 @@ func (r *Repository) ReadPublicRepositories(filters query.RepositoriesFilters) (
 	var wg sync.WaitGroup
 	resultChan := make(chan query.RepositoryDTO, len(repositories))
 
-	for i := 0; i < r.config.Workers; i++ {
-		repos := repositories[len(repositories)/r.config.Workers*i : len(repositories)/r.config.Workers*(i+1)]
+	for i := 0; i < r.config.WorkersPoolSize; i++ {
+		repos := repositories[len(repositories)/r.config.WorkersPoolSize*i : len(repositories)/r.config.WorkersPoolSize*(i+1)]
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			err := worker(repos, resultChan, filters)
+			err := worker(r.config, repos, resultChan, filters)
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -61,9 +68,16 @@ func (r *Repository) ReadPublicRepositories(filters query.RepositoriesFilters) (
 	return repos, nil
 }
 
-func worker(i []GithubRepositoryModel, resultChan chan<- query.RepositoryDTO, filters query.RepositoriesFilters) error {
+func worker(config *shared.Config, i []GithubRepositoryModel, resultChan chan<- query.RepositoryDTO, filters query.RepositoriesFilters) error {
 	for _, repo := range i {
-		response, err := http.Get(repo.LanguageURL)
+		req, err := http.NewRequest("GET", repo.LanguageURL, nil)
+		if err != nil {
+			return err
+		}
+		req.Header.Set("Accept", "application/vnd.github+json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", config.GithubToken))
+
+		response, err := http.DefaultClient.Do(req)
 		if err != nil {
 			return err
 		}
