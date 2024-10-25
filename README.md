@@ -32,7 +32,10 @@ This allows to not introduce any breaking changes in the service layer.
   It can be deployed on multiple instances
   behind a load balancer.
 - The multiple layers of the application make it easy to maintain, test it and add new features.
-- Adapters are easily replaceable or mockable.
+- Adapters are easily replaceable or mockable since they are interfaced we could easily create,
+  an async adapter that would
+  aggregate the languages in the background at a fixed rate or depending on the users'
+  requests and store them in a cache.
 - There is mappings between the final response and the layers, so data can be easily transformed, added, removed without
   introducing breaking changes.
 
@@ -61,8 +64,7 @@ localhost:5000/v1/repositories?limit=20&language=Ruby
 
 ## Performance
 
-Performance wise, it seems that GitHub API is quite slow (Between 1 seconde and 5 secondes during my
-test).
+Performance wise, it seems that GitHub API is quite slow, and a cache would be highly beneficial
 
 Processing the repositories with their languages for 100 repos took under 0.10ms
 but could be highly inaccurate due to the GitHub API response time and various other reasons.

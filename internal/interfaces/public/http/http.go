@@ -1,8 +1,8 @@
 package http
 
 import (
-	"github.com/Scalingo/sclng-backend-test-v1/internal/github/service"
-	"github.com/Scalingo/sclng-backend-test-v1/internal/shared/server"
+	"github.com/Scalingo/sclng-backend-test-v1/common/server"
+	"github.com/Scalingo/sclng-backend-test-v1/internal/service"
 )
 
 type Server struct {

@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	"github.com/Scalingo/sclng-backend-test-v1/internal/github/service/usecases"
+	"github.com/Scalingo/sclng-backend-test-v1/internal/service/usecases"
 )
 
 type GithubRepositoryModel struct {

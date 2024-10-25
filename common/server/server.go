@@ -5,19 +5,19 @@ import (
 	"fmt"
 	"github.com/Scalingo/go-handlers"
 	"github.com/Scalingo/go-utils/errors/v2"
-	"github.com/Scalingo/sclng-backend-test-v1/internal/shared"
-	"github.com/Scalingo/sclng-backend-test-v1/internal/shared/errs"
+	"github.com/Scalingo/sclng-backend-test-v1/common"
+	"github.com/Scalingo/sclng-backend-test-v1/common/errs"
 	"github.com/sirupsen/logrus"
 	"net/http"
 )
 
 type Server struct {
 	Router *handlers.Router
-	Config *shared.Config
+	Config *common.Config
 	Log    logrus.FieldLogger
 }
 
-func New(config *shared.Config, log logrus.FieldLogger) *Server {
+func New(config *common.Config, log logrus.FieldLogger) *Server {
 	router := handlers.NewRouter(log)
 	return &Server{
 		Router: router,
