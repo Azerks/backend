@@ -41,7 +41,7 @@ func (r *Repository) ReadPublicRepositories(ctx context.Context, filters usecase
 		return nil, err
 	}
 
-	if filters.Limit != 0 {
+	if filters.Limit > 0 {
 		repositories = repositories[:filters.Limit]
 	}
 
