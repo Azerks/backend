@@ -4,18 +4,18 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/Scalingo/sclng-backend-test-v1/internal/github/service/usecases"
-	"github.com/Scalingo/sclng-backend-test-v1/internal/shared"
+	"github.com/Scalingo/sclng-backend-test-v1/common"
+	"github.com/Scalingo/sclng-backend-test-v1/internal/service/usecases"
 	"net/http"
 	"sync"
 )
 
 type Repository struct {
 	client *http.Client
-	config *shared.Config
+	config *common.Config
 }
 
-func New(config *shared.Config, client *http.Client) *Repository {
+func New(config *common.Config, client *http.Client) *Repository {
 	return &Repository{
 		config: config,
 		client: client,

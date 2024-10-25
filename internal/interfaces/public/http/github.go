@@ -2,7 +2,7 @@ package http
 
 import (
 	"github.com/Scalingo/go-handlers"
-	"github.com/Scalingo/sclng-backend-test-v1/internal/github/service/usecases"
+	"github.com/Scalingo/sclng-backend-test-v1/internal/service/usecases"
 	"net/http"
 	"strconv"
 	"strings"
@@ -18,7 +18,7 @@ func (s *Server) getRepositories() handlers.HandlerFunc {
 			Limit:     limit,
 			Languages: strings.Split(s.server.GetQueryParam(r, "language"), ","),
 		}
-		repositories, err := s.app.GetGithubRepositories.Handle(r.Context(), usecases.GetPublicGithubRepositories{
+		repositories, err := s.app.ListRepositories.Handle(r.Context(), usecases.ListPublicRepositories{
 			Filters: filters,
 		})
 		if err != nil {
