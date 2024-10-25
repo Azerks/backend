@@ -62,5 +62,3 @@ but could be highly inaccurate due to the GitHub API response time and various a
 
 There is a env variable 'WORKERS_POOL_SIZE'
 that can be adjusted to increase the parallelism of the aggregations.
-
-Its also pretty much impossible to do a stress test due to the previously mentioned reasons.

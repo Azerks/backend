@@ -5,6 +5,7 @@ import (
 	"github.com/Scalingo/sclng-backend-test-v1/internal/github/service/usecases"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 func (s *Server) getRepositories() handlers.HandlerFunc {
@@ -14,8 +15,8 @@ func (s *Server) getRepositories() handlers.HandlerFunc {
 			limit = 0
 		}
 		filters := usecases.RepositoriesFilters{
-			Limit:    limit,
-			Language: s.server.GetQueryParam(r, "language"),
+			Limit:     limit,
+			Languages: strings.Split(s.server.GetQueryParam(r, "language"), ","),
 		}
 		repositories, err := s.app.GetGithubRepositories.Handle(usecases.GetPublicGithubRepositories{
 			Filters: filters,

@@ -8,8 +8,8 @@ type RepositoryDTO struct {
 }
 
 type RepositoriesFilters struct {
-	Limit    int
-	Language string
+	Limit     int
+	Languages []string
 }
 
 type (

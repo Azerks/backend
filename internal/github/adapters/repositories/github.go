@@ -101,8 +101,12 @@ func worker(r *Repository, i []GithubRepositoryModel, resultChan chan<- usecases
 }
 
 func shouldBeInclude(repo usecases.RepositoryDTO, filters usecases.RepositoriesFilters) bool {
-	if filters.Language != "" && repo.Language[filters.Language] == 0 {
-		return false
+	if len(filters.Languages) > 0 {
+		for _, lang := range filters.Languages {
+			if repo.Language[lang] == 0 {
+				return false
+			}
+		}
 	}
 
 	return true
