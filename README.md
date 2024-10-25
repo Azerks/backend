@@ -65,7 +65,7 @@ Performance wise, it seems that GitHub API is quite slow (Between 1 seconde and 
 test).
 
 Processing the repositories with their languages for 100 repos took under 0.10ms
-but could be highly inaccurate due to the GitHub API response time and various another reason.
+but could be highly inaccurate due to the GitHub API response time and various other reasons.
 
 There is a env variable 'WORKERS_POOL_SIZE'
 that can be adjusted to increase the parallelism of the aggregations.
