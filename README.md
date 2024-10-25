@@ -15,6 +15,9 @@ The Application is divided into three layers:
   responsible for calling the GitHub API and aggregating the languages of the repositories. It could be a bit confusing
   since the internal adapters are called Repository but those have nothing to do with github.
 
+I've decided to do the aggregation parts within the adapters since it could be entirely different for another source.
+This allows to not introduce any breaking changes in the service layer.
+
 ### Further Improvements
 
 - A cache would be highly beneficial to store either a previous request or a repository that has already been
