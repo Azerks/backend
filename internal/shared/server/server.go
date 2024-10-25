@@ -6,6 +6,7 @@ import (
 	"github.com/Scalingo/go-handlers"
 	"github.com/Scalingo/go-utils/errors/v2"
 	"github.com/Scalingo/sclng-backend-test-v1/internal/shared"
+	"github.com/Scalingo/sclng-backend-test-v1/internal/shared/errs"
 	"github.com/sirupsen/logrus"
 	"net/http"
 )
@@ -48,7 +49,7 @@ func (s *Server) RespondErr(w http.ResponseWriter, r *http.Request, err error) {
 		return
 	}
 
-	s.Respond(w, r, http.StatusInternalServerError, nil)
+	errs.HTTP(w, r, err)
 }
 
 func (s *Server) GetQueryParam(r *http.Request, key string) string {

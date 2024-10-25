@@ -1,5 +1,11 @@
 package usecases
 
+import (
+	"context"
+	"fmt"
+	"github.com/Scalingo/sclng-backend-test-v1/internal/shared/errs"
+)
+
 type GetPublicGithubRepositories struct {
 	Filters RepositoriesFilters
 }
@@ -13,10 +19,10 @@ func NewGithubRepositoriesHandler(githubRepository RepositoriesReader) GetPublic
 	}
 }
 
-func (h *GetPublicGithubRepositoriesHandler) Handle(params GetPublicGithubRepositories) ([]RepositoryDTO, error) {
-	repositories, err := h.githubRepository.ReadPublicRepositories(params.Filters)
+func (h *GetPublicGithubRepositoriesHandler) Handle(ctx context.Context, params GetPublicGithubRepositories) ([]RepositoryDTO, error) {
+	rs, err := h.githubRepository.ReadPublicRepositories(ctx, params.Filters)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w: %w", errs.ErrInternal{}, err)
 	}
-	return repositories, nil
+	return rs, nil
 }

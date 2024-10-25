@@ -1,5 +1,7 @@
 package usecases
 
+import "context"
+
 type RepositoryDTO struct {
 	FullName   string         `json:"full_name"`
 	Owner      string         `json:"owner"`
@@ -14,6 +16,6 @@ type RepositoriesFilters struct {
 
 type (
 	RepositoriesReader interface {
-		ReadPublicRepositories(filters RepositoriesFilters) ([]RepositoryDTO, error)
+		ReadPublicRepositories(ctx context.Context, filters RepositoriesFilters) ([]RepositoryDTO, error)
 	}
 )

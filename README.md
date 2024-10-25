@@ -1,4 +1,4 @@
-# Canvas for Backend Technical Test at Scalingo
+# Backend Technical Test at Scalingo
 
 ## Specifications
 
@@ -20,10 +20,14 @@ The Application is divided into three layers:
 - A cache would be highly beneficial to store either a previous request or a repository that has already been
   aggregated.
   We could, for example, set up an memory cache or a redis cache.
+- Support for pagination
+- Support for custom populating based on some 'required' parameters
 
 ### Scalability & Maintainability
 
 - Since the application is stateless, it can be easily scaled horizontally.
+  It can be deployed on multiple instances
+  behind a load balancer.
 - The multiple layers of the application make it easy to maintain, test it and add new features.
 - Adapters are easily replaceable or mockable.
 - There is mappings between the final response and the layers, so data can be easily transformed, added, removed without

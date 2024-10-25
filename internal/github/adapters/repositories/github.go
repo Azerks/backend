@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/Scalingo/sclng-backend-test-v1/internal/github/service/usecases"
@@ -21,17 +22,17 @@ func New(config *shared.Config, client *http.Client) *Repository {
 	}
 }
 
-func (r *Repository) ReadPublicRepositories(filters usecases.RepositoriesFilters) ([]usecases.RepositoryDTO, error) {
-	req, err := http.NewRequest("GET", r.config.GithubApiURI+"/repositories", nil)
+func (r *Repository) ReadPublicRepositories(ctx context.Context, filters usecases.RepositoriesFilters) ([]usecases.RepositoryDTO, error) {
+	ctx, cancel := context.WithCancelCause(context.Background())
+	defer cancel(nil)
+	req, err := r.generateRequest(r.config.GithubApiURI + "/repositories")
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("Accept", "application/vnd.github+json")
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", r.config.GithubToken))
 
 	response, err := r.client.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w: error while fetching repositories: %w", getGithubErr(response), err)
 	}
 	defer response.Body.Close()
 
@@ -46,21 +47,45 @@ func (r *Repository) ReadPublicRepositories(filters usecases.RepositoriesFilters
 
 	var wg sync.WaitGroup
 	resultChan := make(chan usecases.RepositoryDTO, len(repositories))
+	errChan := make(chan error, r.config.WorkersPoolSize)
+	doneChan := make(chan struct{})
 
 	for i := 0; i < r.config.WorkersPoolSize; i++ {
-		repos := repositories[len(repositories)/r.config.WorkersPoolSize*i : len(repositories)/r.config.WorkersPoolSize*(i+1)]
-		wg.Add(1)
+		rs := r.SplitWorkersData(i, repositories)
 		go func() {
-			defer wg.Done()
-			err := worker(r, repos, resultChan, filters)
-			if err != nil {
-				fmt.Println(err)
-			}
+			r.worker(ctx, &wg, workerParams{
+				repositories: rs,
+				resultChan:   resultChan,
+				errorChan:    errChan,
+				filters:      filters,
+			})
 		}()
 	}
 
-	wg.Wait()
-	close(resultChan)
+	go func() {
+		wg.Wait()
+		close(doneChan)
+	}()
+
+	go func() {
+		select {
+		case <-ctx.Done():
+			return
+		case err := <-errChan:
+			cancel(err)
+			return
+		}
+	}()
+
+	select {
+	case <-ctx.Done():
+		close(resultChan)
+		close(errChan)
+		return nil, ctx.Err()
+	case <-doneChan:
+		close(resultChan)
+		close(errChan)
+	}
 
 	repos := make([]usecases.RepositoryDTO, 0)
 	for result := range resultChan {
@@ -70,34 +95,69 @@ func (r *Repository) ReadPublicRepositories(filters usecases.RepositoriesFilters
 	return repos, nil
 }
 
-func worker(r *Repository, i []GithubRepositoryModel, resultChan chan<- usecases.RepositoryDTO, filters usecases.RepositoriesFilters) error {
-	for _, repo := range i {
-		req, err := http.NewRequest("GET", repo.LanguageURL, nil)
-		if err != nil {
-			return err
-		}
-		req.Header.Set("Accept", "application/vnd.github+json")
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", r.config.GithubToken))
+type workerParams struct {
+	repositories []GithubRepositoryModel
+	resultChan   chan<- usecases.RepositoryDTO
+	errorChan    chan<- error
+	filters      usecases.RepositoriesFilters
+}
 
-		response, err := r.client.Do(req)
-		if err != nil {
-			return err
-		}
-		defer response.Body.Close()
+func (r *Repository) worker(ctx context.Context, wg *sync.WaitGroup, params workerParams) {
+	wg.Add(1)
+	defer wg.Done()
 
-		languages := map[string]int{}
-		if err := json.NewDecoder(response.Body).Decode(&languages); err != nil {
-			return err
-		}
+	for _, repo := range params.repositories {
+		select {
+		case <-ctx.Done():
+			return
+		default:
+			req, err := r.generateRequest(repo.LanguageURL)
+			if err != nil {
+				params.errorChan <- err
+				return
+			}
 
-		repo := toGithubRepositoriesQuery(repo, languages)
-		if !shouldBeInclude(repo, filters) {
-			continue
-		}
+			response, err := r.client.Do(req)
+			if err != nil {
+				params.errorChan <- fmt.Errorf("%w: error while fetching repositories: %w", getGithubErr(response), err)
+				return
+			}
+			defer response.Body.Close()
 
-		resultChan <- repo
+			languages := map[string]int{}
+			if err := json.NewDecoder(response.Body).Decode(&languages); err != nil {
+				params.errorChan <- err
+				return
+			}
+
+			repo := toGithubRepositoriesQuery(repo, languages)
+			if !shouldBeInclude(repo, params.filters) {
+				continue
+			}
+
+			params.resultChan <- repo
+		}
 	}
-	return nil
+}
+
+func (r *Repository) generateRequest(url string) (*http.Request, error) {
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Accept", "application/vnd.github+json")
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", r.config.GithubToken))
+	return req, nil
+}
+
+func (r *Repository) SplitWorkersData(i int, repositories []GithubRepositoryModel) []GithubRepositoryModel {
+	start := len(repositories) / r.config.WorkersPoolSize * i
+	end := len(repositories) / r.config.WorkersPoolSize * (i + 1)
+
+	if end > len(repositories) {
+		end = len(repositories)
+	}
+	return repositories[start:end]
 }
 
 func shouldBeInclude(repo usecases.RepositoryDTO, filters usecases.RepositoriesFilters) bool {
